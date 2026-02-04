@@ -17,7 +17,8 @@ onHide(() => {
 </script>
 
 <style lang="scss">
-@use '@/styles/global.scss';
+@import 'uview-plus/index.scss';
+@import '@/styles/global.scss';
 
 .app {
   width: 100%;

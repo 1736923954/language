@@ -1,28 +1,45 @@
 <template>
   <view class="profile-page">
-    <view class="user-card" v-if="user">
-      <view class="avatar-wrap">
-        <text class="avatar">{{ user.username?.charAt(0)?.toUpperCase() || '?' }}</text>
+    <view v-if="user" class="user-section">
+      <u-card :padding="24" :border-radius="12">
+        <template #body>
+          <view class="user-card">
+            <u-avatar
+              :text="user.username?.charAt(0)?.toUpperCase() || '?'"
+              size="64"
+              bg-color="#3b82f6"
+              color="#fff"
+            />
+            <text class="username">{{ user.username }}</text>
+            <text class="email" v-if="user.email">{{ user.email }}</text>
+            <text class="level" v-if="user.level">Level: {{ user.level }}</text>
+          </view>
+        </template>
+      </u-card>
+
+      <view class="menu-section">
+        <u-cell-group>
+          <u-cell
+            title="Logout"
+            icon="close-circle-fill"
+            :border="true"
+            @click="handleLogout"
+          />
+        </u-cell-group>
       </view>
-      <text class="username">{{ user.username }}</text>
-      <text class="email" v-if="user.email">{{ user.email }}</text>
-      <text class="level" v-if="user.level">Level: {{ user.level }}</text>
     </view>
 
-    <view class="menu-section">
-      <view class="menu-item" @click="handleLogout">
-        <text class="menu-icon">🚪</text>
-        <text class="menu-text">Logout</text>
-      </view>
-    </view>
+    <u-loading-page v-if="isLoading" loading-text="Loading..." />
 
-    <view v-if="isLoading" class="loading">
-      <text>Loading...</text>
-    </view>
-
-    <view v-if="!isLoading && !user" class="empty-state">
-      <text class="empty-text">Please login</text>
-      <button class="login-btn" @click="uni.reLaunch({ url: '/pages/login/index' })">Login</button>
+    <view v-else-if="!user" class="empty-section">
+      <u-empty mode="list" text="Please login" margin-top="80">
+        <u-button
+          type="primary"
+          text="Login"
+          shape="circle"
+          @click="uni.reLaunch({ url: '/pages/login/index' })"
+        />
+      </u-empty>
     </view>
   </view>
 </template>
@@ -53,99 +70,46 @@ const handleLogout = () => {
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/variables.scss' as *;
+@import '@/styles/variables.scss';
 
 .profile-page {
   padding: 16px;
   padding-bottom: 100px;
 }
 
-.user-card {
-  background: white;
-  border-radius: $radius-lg;
-  padding: 24px;
-  text-align: center;
-  box-shadow: $shadow-md;
-  margin-bottom: 20px;
-}
-
-.avatar-wrap {
-  width: 64px;
-  height: 64px;
-  margin: 0 auto 12px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
+.user-section {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  gap: 20px;
 }
 
-.avatar {
-  font-size: 28px;
-  font-weight: bold;
-  color: white;
+.user-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
 }
 
 .username {
-  display: block;
   font-size: 18px;
   font-weight: bold;
   color: $text-primary;
-  margin-bottom: 4px;
 }
 
 .email,
 .level {
-  display: block;
   font-size: 13px;
   color: $text-secondary;
-  margin-bottom: 2px;
 }
 
 .menu-section {
-  background: white;
-  border-radius: $radius-lg;
-  overflow: hidden;
-  box-shadow: $shadow-md;
+  margin-top: 0;
 }
 
-.menu-item {
+.empty-section {
+  min-height: 300px;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  border-bottom: 1px solid $border-color;
-
-  &:last-child {
-    border-bottom: none;
-  }
-}
-
-.menu-icon {
-  font-size: 20px;
-}
-
-.menu-text {
-  font-size: 15px;
-  color: $text-primary;
-}
-
-.loading,
-.empty-state {
-  display: flex;
-  flex-direction: column;
   justify-content: center;
-  align-items: center;
-  min-height: 200px;
-  color: $text-secondary;
-}
-
-.login-btn {
-  margin-top: 16px;
-  padding: 10px 24px;
-  background: $primary-color;
-  color: white;
-  border-radius: $radius-md;
-  font-size: 14px;
 }
 </style>

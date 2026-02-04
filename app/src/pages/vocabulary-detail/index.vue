@@ -1,41 +1,58 @@
 <template>
   <view class="detail-page">
-    <view v-if="vocabulary" class="detail-card">
-      <view class="vocab-header">
-        <view class="word-row">
-          <text class="word">{{ vocabulary.word }}</text>
-          <text class="level-badge" :class="`level-${vocabulary.difficulty_level}`">
-            {{ vocabulary.difficulty_level }}
-          </text>
-        </view>
-        <text class="phonetic">{{ vocabulary.phonetic }}</text>
-        <text class="pos" v-if="vocabulary.part_of_speech">{{ vocabulary.part_of_speech }}</text>
-      </view>
+    <u-loading-page v-if="isLoading" loading-text="Loading..." />
 
-      <view class="definition-section">
-        <text class="definition">{{ vocabulary.definition }}</text>
-        <text class="definition-zh" v-if="vocabulary.definition_zh">{{ vocabulary.definition_zh }}</text>
-      </view>
-
-      <view class="sentences-section" v-if="sentences.length > 0">
-        <text class="section-title">Example Sentences</text>
-        <view class="sentence-list">
-          <view class="sentence-item" v-for="s in sentences" :key="s.id">
-            <text class="sentence-en">{{ s.english_text }}</text>
-            <text class="sentence-zh">{{ s.chinese_translation }}</text>
+    <view v-else-if="vocabulary" class="detail-content">
+      <u-card :padding="20" :border-radius="12" :show-head="true" :show-foot="false">
+        <template #head>
+          <view class="vocab-header">
+            <view class="word-row">
+              <text class="word">{{ vocabulary.word }}</text>
+              <u-tag
+                :text="vocabulary.difficulty_level"
+                :type="getLevelType(vocabulary.difficulty_level)"
+                size="mini"
+              />
+            </view>
+            <text class="phonetic" v-if="vocabulary.phonetic">{{ vocabulary.phonetic }}</text>
+            <u-tag
+              v-if="vocabulary.part_of_speech"
+              :text="vocabulary.part_of_speech"
+              type="info"
+              size="mini"
+              plain
+            />
           </view>
-        </view>
-      </view>
+        </template>
+        <template #body>
+          <view class="definition-section">
+            <text class="definition">{{ vocabulary.definition }}</text>
+            <text class="definition-zh" v-if="vocabulary.definition_zh">{{ vocabulary.definition_zh }}</text>
+          </view>
+
+          <view class="sentences-section" v-if="sentences.length > 0">
+            <text class="section-title">Example Sentences</text>
+            <view class="sentence-list">
+              <view
+                v-for="s in sentences"
+                :key="s.id"
+                class="sentence-item"
+              >
+                <text class="sentence-en">{{ s.english_text }}</text>
+                <text class="sentence-zh">{{ s.chinese_translation }}</text>
+              </view>
+            </view>
+          </view>
+        </template>
+      </u-card>
     </view>
 
-    <view v-if="isLoading" class="loading">
-      <text>Loading...</text>
-    </view>
-
-    <view v-if="!isLoading && !vocabulary" class="empty-state">
-      <text class="empty-icon">📖</text>
-      <text class="empty-text">Vocabulary not found</text>
-    </view>
+    <u-empty
+      v-else
+      mode="list"
+      text="Vocabulary not found"
+      margin-top="80"
+    />
   </view>
 </template>
 
@@ -48,6 +65,18 @@ const learningStore = useLearningStore();
 const vocabulary = computed(() => learningStore.currentVocabulary);
 const sentences = computed(() => learningStore.currentSentences);
 const isLoading = ref(false);
+
+const getLevelType = (level: string) => {
+  const map: Record<string, string> = {
+    A1: 'success',
+    A2: 'primary',
+    B1: 'warning',
+    B2: 'error',
+    C1: 'primary',
+    C2: 'error',
+  };
+  return map[level] || 'info';
+};
 
 onLoad((options) => {
   const id = options?.id ? parseInt(options.id as string) : 0;
@@ -62,24 +91,21 @@ const loadDetail = async (id: number) => {
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/variables.scss' as *;
+@import '@/styles/variables.scss';
 
 .detail-page {
-  padding: 16px;
+  padding: 20px;
   padding-bottom: 100px;
+  background: $bg-secondary;
+  min-height: 100vh;
 }
 
-.detail-card {
-  background: white;
-  border-radius: $radius-lg;
-  padding: 20px;
-  box-shadow: $shadow-md;
+.detail-content {
+  margin: 0;
 }
 
 .vocab-header {
-  margin-bottom: 20px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid $border-color;
+  padding-bottom: 0;
 }
 
 .word-row {
@@ -90,9 +116,12 @@ const loadDetail = async (id: number) => {
 }
 
 .word {
-  font-size: 24px;
-  font-weight: bold;
-  color: $primary-color;
+  font-size: 32px;
+  font-weight: 700;
+  background: $gradient-primary;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .phonetic {
@@ -100,16 +129,7 @@ const loadDetail = async (id: number) => {
   font-size: 14px;
   color: $text-secondary;
   font-style: italic;
-  margin-bottom: 6px;
-}
-
-.pos {
-  display: inline-block;
-  background: $bg-secondary;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  color: $text-secondary;
+  margin-bottom: 8px;
 }
 
 .definition-section {
@@ -145,10 +165,29 @@ const loadDetail = async (id: number) => {
 }
 
 .sentence-item {
-  padding: 12px;
-  background: $bg-secondary;
-  border-radius: $radius-md;
-  border-left: 3px solid $primary-color;
+  padding: 16px;
+  background: white;
+  border-radius: $radius-lg;
+  border-left: 4px solid #58cc02;
+  box-shadow: $shadow-sm;
+  transition: all 0.3s ease;
+  position: relative;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: $gradient-primary;
+    border-radius: $radius-lg 0 0 $radius-lg;
+  }
+
+  &:active {
+    transform: translateX(4px);
+    box-shadow: $shadow-md;
+  }
 }
 
 .sentence-en {
@@ -162,35 +201,5 @@ const loadDetail = async (id: number) => {
   display: block;
   font-size: 13px;
   color: $text-secondary;
-}
-
-.level-badge {
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: bold;
-  color: white;
-}
-
-.level-A1 { background: #10b981; }
-.level-A2 { background: #3b82f6; }
-.level-B1 { background: #f59e0b; }
-.level-B2 { background: #ef4444; }
-.level-C1 { background: #8b5cf6; }
-.level-C2 { background: #ec4899; }
-
-.loading,
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 200px;
-  color: $text-secondary;
-}
-
-.empty-icon {
-  font-size: 48px;
-  margin-bottom: 16px;
 }
 </style>

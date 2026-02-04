@@ -3,37 +3,50 @@
     <view class="login-bg" />
     <view class="login-card">
       <view class="logo-section">
-        <text class="logo-text">📚</text>
+        <view class="logo-icon">
+          <u-icon name="bookmark-fill" size="40" color="#ffffff" />
+        </view>
         <text class="app-title">English Learning</text>
         <text class="app-subtitle">Master English at your own pace</text>
       </view>
       <view class="form-section">
-        <view class="form-group">
-          <text class="form-label">Username</text>
-          <input
-            v-model="form.username"
-            class="form-input"
-            placeholder="Enter username"
-            type="text"
-          />
-        </view>
-        <view class="form-group">
-          <text class="form-label">Password</text>
-          <input
-            v-model="form.password"
-            class="form-input"
-            placeholder="Enter password"
-            type="password"
-          />
-        </view>
-        <button
-          class="login-button"
+        <u-form :model="form" label-position="top">
+          <u-form-item label="Username" prop="username" required>
+            <u-input
+              v-model="form.username"
+              placeholder="Enter username"
+              clearable
+              :border="true"
+              shape="circle"
+            />
+          </u-form-item>
+          <u-form-item label="Password" prop="password" required>
+            <u-input
+              v-model="form.password"
+              :password="true"
+              placeholder="Enter password"
+              clearable
+              :border="true"
+              shape="circle"
+            />
+          </u-form-item>
+        </u-form>
+        <u-button
+          type="primary"
+          :loading="isLoading"
           :disabled="isLoading"
+          text="Login"
+          shape="circle"
+          block
           @click="handleLogin"
-        >
-          {{ isLoading ? 'Logging in...' : 'Login' }}
-        </button>
-        <view v-if="error" class="error-message">{{ error }}</view>
+        />
+        <u-alert
+          v-if="error"
+          :title="error"
+          type="error"
+          :show-icon="true"
+          margin="16rpx 0 0 0"
+        />
         <view class="demo-tip">
           <text>Demo: admin / admin123</text>
         </view>
@@ -78,11 +91,10 @@ const handleLogin = async () => {
 
   isLoading.value = false;
 };
-
 </script>
 
 <style scoped lang="scss">
-@use '@/styles/variables.scss' as *;
+@import '@/styles/variables.scss';
 
 .login-page {
   position: relative;
@@ -95,46 +107,77 @@ const handleLogin = async () => {
   padding-bottom: calc(24px + env(safe-area-inset-bottom));
 }
 
-/* 背景层 - 置于底层 */
 .login-bg {
   position: absolute;
   left: 0;
   top: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(180deg, $primary-color 0%, $primary-light 50%, #93c5fd 100%);
+  background: $gradient-primary;
   z-index: 0;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 400px;
+    height: 400px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 50%;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 300px;
+    height: 300px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+  }
 }
 
-/* 表单卡片 - 置于背景之上，可交互 */
 .login-card {
   position: relative;
   z-index: 1;
   width: 100%;
-  max-width: 360px;
+  max-width: 380px;
   background: #ffffff;
-  border-radius: $radius-xl;
-  padding: 32px 24px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+  border-radius: $radius-2xl;
+  padding: 40px 28px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(10px);
 }
 
 .logo-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 20px;
+  gap: 12px;
+  margin-bottom: 32px;
 }
 
-.logo-text {
-  font-size: 32px;
-  line-height: 1;
+.logo-icon {
+  width: 72px;
+  height: 72px;
+  background: $gradient-primary;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: $shadow-md;
 }
 
 .app-title {
-  font-size: 18px;
-  font-weight: bold;
-  color: $text-primary;
+  font-size: 24px;
+  font-weight: 700;
+  background: $gradient-primary;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .app-subtitle {
@@ -149,64 +192,6 @@ const handleLogin = async () => {
   gap: 16px;
 }
 
-.form-group {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.form-label {
-  font-size: $font-size-sm;
-  font-weight: 600;
-  color: $text-primary;
-}
-
-.form-input {
-  display: block;
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid $border-color;
-  border-radius: $radius-md;
-  font-size: 16px;
-  color: $text-primary;
-  background: #ffffff;
-  box-sizing: border-box;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
-.login-button {
-  padding: 14px 24px;
-  min-height: 48px;
-  background: $primary-color;
-  color: white;
-  border: none;
-  border-radius: $radius-md;
-  font-size: $font-size-md;
-  font-weight: 600;
-  cursor: pointer;
-  line-height: 1.5;
-}
-
-.login-button:active {
-  background: $primary-dark;
-}
-
-.login-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.error-message {
-  color: $error-color;
-  font-size: $font-size-sm;
-  text-align: center;
-  padding: $spacing-md;
-  background: rgba(239, 68, 68, 0.08);
-  border-radius: $radius-md;
-  border: 1px solid rgba(239, 68, 68, 0.2);
-}
-
 .demo-tip {
   text-align: center;
   color: $text-secondary;
@@ -214,16 +199,5 @@ const handleLogin = async () => {
   padding-top: $spacing-lg;
   margin-top: $spacing-sm;
   border-top: 1px solid $border-color;
-}
-</style>
-
-<!-- 修复 uni-input 在 H5 下无法输入：覆盖其 overflow:hidden 和固定高度 -->
-<style lang="scss">
-.login-page uni-input,
-.login-page .uni-input-wrapper,
-.login-page .uni-input-form {
-  min-height: 44px !important;
-  height: auto !important;
-  overflow: visible !important;
 }
 </style>

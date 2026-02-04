@@ -4,10 +4,12 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [uni()],
+  transpileDependencies: ['uview-plus'],
   css: {
     preprocessorOptions: {
       scss: {
         api: 'modern-compiler',
+        silenceDeprecations: ['legacy-js-api', 'color-functions', 'import'],
       },
     },
   },
