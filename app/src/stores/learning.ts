@@ -18,7 +18,8 @@ export const useLearningStore = defineStore('learning', () => {
 
     try {
       const response = await vocabularyAPI.getList(params);
-      vocabularies.value = response.data.data || [];
+      // 后端 paginated 返回 { data: [...] }，request 已提取为 response.data
+      vocabularies.value = Array.isArray(response.data) ? response.data : (response.data?.data || []);
     } catch (err: any) {
       error.value = err.message;
     } finally {
@@ -36,7 +37,7 @@ export const useLearningStore = defineStore('learning', () => {
 
       // 加载相关句子
       const sentencesResponse = await sentenceAPI.getByVocabulary(id);
-      currentSentences.value = sentencesResponse.data.data || [];
+      currentSentences.value = Array.isArray(sentencesResponse.data) ? sentencesResponse.data : (sentencesResponse.data?.data || []);
     } catch (err: any) {
       error.value = err.message;
     } finally {

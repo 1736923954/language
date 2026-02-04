@@ -69,11 +69,22 @@ class Request {
         uni.showLoading({ title: 'Loading...' });
       }
 
+      const method = options?.method || 'GET';
+      let requestUrl = `${API_BASE_URL}${url}`;
+      // GET 请求将 params 拼接到 URL，确保参数正确传递
+      if (method === 'GET' && options?.data && Object.keys(options.data).length > 0) {
+        const query = Object.entries(options.data)
+          .filter(([, v]) => v !== undefined && v !== '')
+          .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(String(v))}`)
+          .join('&');
+        requestUrl += (url.includes('?') ? '&' : '?') + query;
+      }
+
       uni.request({
-        url: `${API_BASE_URL}${url}`,
-        method: options?.method || 'GET',
+        url: requestUrl,
+        method,
         header: this.getHeaders(options),
-        data: options?.data,
+        data: method !== 'GET' ? options?.data : undefined,
         timeout: options?.timeout || 10000,
         success: (res: any) => {
           if (showLoading) {
