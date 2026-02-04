@@ -1,3 +1,6 @@
+# Dependencies
+node_modules
+
 # Environment
 .env
 .env.local
@@ -12,10 +15,8 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Uploads
+uploads/
 
 # Editor directories and files
 .vscode/*
