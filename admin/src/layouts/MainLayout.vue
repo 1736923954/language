@@ -13,7 +13,7 @@
         class="menu"
       >
         <el-menu-item index="dashboard">
-          <el-icon><Dashboard /></el-icon>
+          <el-icon><DataBoard /></el-icon>
           <span>Dashboard</span>
         </el-menu-item>
         <el-menu-item index="vocabularies">
@@ -79,7 +79,7 @@ import { useRouter } from 'vue-router';
 import { useAppStore } from '../stores/app';
 import { useAuthStore } from '../stores/auth';
 import {
-  Dashboard,
+  DataBoard,
   DocumentCopy,
   Notebook,
   Folder,
