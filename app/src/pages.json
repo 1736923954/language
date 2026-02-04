@@ -1,0 +1,76 @@
+{
+  "pages": [
+    {
+      "path": "pages/index/index",
+      "style": {
+        "navigationBarTitleText": "English Learning"
+      }
+    },
+    {
+      "path": "pages/login/index",
+      "style": {
+        "navigationBarTitleText": "Login",
+        "navigationStyle": "custom"
+      }
+    },
+    {
+      "path": "pages/vocabularies/index",
+      "style": {
+        "navigationBarTitleText": "Vocabularies"
+      }
+    },
+    {
+      "path": "pages/vocabulary-detail/index",
+      "style": {
+        "navigationBarTitleText": "Vocabulary Detail"
+      }
+    },
+    {
+      "path": "pages/progress/index",
+      "style": {
+        "navigationBarTitleText": "Learning Progress"
+      }
+    },
+    {
+      "path": "pages/profile/index",
+      "style": {
+        "navigationBarTitleText": "Profile"
+      }
+    }
+  ],
+  "globalStyle": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "English Learning",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#FFFFFF"
+  },
+  "tabBar": {
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "iconPath": "static/home.png",
+        "selectedIconPath": "static/home-active.png",
+        "text": "Home"
+      },
+      {
+        "pagePath": "pages/vocabularies/index",
+        "iconPath": "static/book.png",
+        "selectedIconPath": "static/book-active.png",
+        "text": "Learn"
+      },
+      {
+        "pagePath": "pages/progress/index",
+        "iconPath": "static/chart.png",
+        "selectedIconPath": "static/chart-active.png",
+        "text": "Progress"
+      },
+      {
+        "pagePath": "pages/profile/index",
+        "iconPath": "static/user.png",
+        "selectedIconPath": "static/user-active.png",
+        "text": "Profile"
+      }
+    ]
+  }
+}

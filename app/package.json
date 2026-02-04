@@ -1,0 +1,20 @@
+{
+  "name": "english-learning-app",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@dcloudio/vite-plugin-uni": "^3.0.0-alpha-3000020210521001",
+    "@uni-helper/uni-app-types": "^1.0.0-alpha.7",
+    "@vitejs/plugin-vue": "^1.10.2",
+    "typescript": "^5.9.3",
+    "vite": "^2.9.18",
+    "vue": "^3.5.27"
+  }
+}
