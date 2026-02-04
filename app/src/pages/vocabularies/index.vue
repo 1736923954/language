@@ -104,7 +104,7 @@ const goToDetail = (id: number) => {
 }
 
 .filter-section {
-  padding: $spacing-lg;
+  padding: 12px 16px;
   background: white;
   border-bottom: 1px solid $border-color;
   position: sticky;
@@ -114,28 +114,30 @@ const goToDetail = (id: number) => {
 
 .search-input {
   width: 100%;
-  padding: $spacing-md;
+  padding: 10px 12px;
+  margin-bottom: 10px;
   border: 1px solid $border-color;
-  border-radius: $radius-md;
-  font-size: $font-size-md;
-  margin-bottom: $spacing-md;
+  border-radius: 8px;
+  font-size: 14px;
 }
 
 .filter-buttons {
   display: flex;
-  gap: $spacing-sm;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
 .filter-button {
-  padding: $spacing-sm $spacing-md;
+  padding: 4px 10px;
+  min-height: 28px;
+  line-height: 20px;
   border: 1px solid $border-color;
   background: white;
-  border-radius: $radius-md;
-  font-size: $font-size-sm;
+  border-radius: 6px;
+  font-size: 12px;
   color: $text-secondary;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s;
 
   &.active {
     background: $primary-color;

@@ -103,113 +103,113 @@ const goToDetail = (id: number) => {
 
 .welcome-section {
   background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
-  padding: $spacing-3xl $spacing-lg;
+  padding: 24px 16px;
   color: white;
-  margin-bottom: $spacing-2xl;
+  margin-bottom: 20px;
 }
 
 .welcome-text {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: 6px;
 }
 
 .welcome-title {
-  font-size: $font-size-2xl;
+  font-size: 20px;
   font-weight: bold;
 }
 
 .welcome-subtitle {
-  font-size: $font-size-md;
+  font-size: 14px;
   opacity: 0.9;
 }
 
 .statistics-section {
   display: flex;
-  gap: $spacing-md;
-  padding: 0 $spacing-lg;
-  margin-bottom: $spacing-2xl;
+  gap: 10px;
+  padding: 0 16px;
+  margin-bottom: 20px;
 }
 
 .stat-card {
   flex: 1;
   background: white;
   border-radius: $radius-lg;
-  padding: $spacing-lg;
+  padding: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: $spacing-sm;
+  gap: 4px;
   box-shadow: $shadow-md;
 }
 
 .stat-number {
-  font-size: $font-size-2xl;
+  font-size: 20px;
   font-weight: bold;
   color: $primary-color;
 }
 
 .stat-label {
-  font-size: $font-size-sm;
+  font-size: 12px;
   color: $text-secondary;
 }
 
 .menu-section {
   display: flex;
-  gap: $spacing-md;
-  padding: 0 $spacing-lg;
-  margin-bottom: $spacing-2xl;
+  gap: 12px;
+  padding: 0 16px;
+  margin-bottom: 20px;
 }
 
 .menu-card {
   flex: 1;
   background: white;
   border-radius: $radius-lg;
-  padding: $spacing-lg;
+  padding: 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: $spacing-md;
+  gap: 8px;
   box-shadow: $shadow-md;
 }
 
 .menu-icon {
-  font-size: 32px;
+  font-size: 28px;
 }
 
 .menu-title {
-  font-size: $font-size-lg;
+  font-size: 15px;
   font-weight: bold;
   color: $text-primary;
 }
 
 .menu-desc {
-  font-size: $font-size-sm;
+  font-size: 12px;
   color: $text-secondary;
   text-align: center;
 }
 
 .recommended-section {
-  padding: 0 $spacing-lg;
+  padding: 0 16px;
 }
 
 .section-title {
-  font-size: $font-size-lg;
+  font-size: 15px;
   font-weight: bold;
   color: $text-primary;
-  margin-bottom: $spacing-lg;
+  margin-bottom: 12px;
 }
 
 .vocabulary-list {
   display: flex;
   flex-direction: column;
-  gap: $spacing-md;
+  gap: 10px;
 }
 
 .vocabulary-item {
   background: white;
   border-radius: $radius-lg;
-  padding: $spacing-lg;
+  padding: 14px;
   box-shadow: $shadow-md;
 }
 
@@ -217,11 +217,11 @@ const goToDetail = (id: number) => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: $spacing-md;
+  margin-bottom: 8px;
 }
 
 .vocab-word {
-  font-size: $font-size-lg;
+  font-size: 16px;
   font-weight: bold;
   color: $primary-color;
 }
@@ -229,13 +229,13 @@ const goToDetail = (id: number) => {
 .vocab-level {
   background: $bg-secondary;
   color: $text-secondary;
-  padding: $spacing-sm $spacing-md;
-  border-radius: $radius-md;
-  font-size: $font-size-sm;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
 }
 
 .vocab-definition {
-  font-size: $font-size-sm;
+  font-size: 13px;
   color: $text-secondary;
   line-height: 1.5;
 }
