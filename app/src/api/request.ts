@@ -1,6 +1,7 @@
 import type { RequestOptions } from '@dcloudio/uni-app';
 
-const API_BASE_URL = process.env.VITE_API_URL || 'http://localhost:3000/api';
+// 开发环境使用相对路径走 Vite 代理，避免跨域；生产环境需配置 VITE_API_URL
+const API_BASE_URL = import.meta.env.VITE_API_URL || (import.meta.env.DEV ? '/api' : 'http://localhost:3000/api');
 
 interface RequestConfig extends Omit<RequestOptions, 'url' | 'success' | 'fail'> {
   showLoading?: boolean;

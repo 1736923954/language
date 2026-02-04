@@ -1,12 +1,12 @@
 <template>
   <view class="login-page">
-    <view class="login-container">
+    <view class="login-bg" />
+    <view class="login-card">
       <view class="logo-section">
         <text class="logo-text">📚</text>
         <text class="app-title">English Learning</text>
         <text class="app-subtitle">Master English at your own pace</text>
       </view>
-
       <view class="form-section">
         <view class="form-group">
           <text class="form-label">Username</text>
@@ -17,7 +17,6 @@
             type="text"
           />
         </view>
-
         <view class="form-group">
           <text class="form-label">Password</text>
           <input
@@ -27,7 +26,6 @@
             type="password"
           />
         </view>
-
         <button
           class="login-button"
           :disabled="isLoading"
@@ -35,19 +33,7 @@
         >
           {{ isLoading ? 'Logging in...' : 'Login' }}
         </button>
-
-        <view class="divider">
-          <text>or</text>
-        </view>
-
-        <button class="register-button" @click="navigateTo('/pages/register/index')">
-          Create Account
-        </button>
-
-        <view v-if="error" class="error-message">
-          {{ error }}
-        </view>
-
+        <view v-if="error" class="error-message">{{ error }}</view>
         <view class="demo-tip">
           <text>Demo: admin / admin123</text>
         </view>
@@ -93,52 +79,66 @@ const handleLogin = async () => {
   isLoading.value = false;
 };
 
-const navigateTo = (path: string) => {
-  uni.navigateTo({ url: path });
-};
 </script>
 
 <style scoped lang="scss">
 @use '@/styles/variables.scss' as *;
 
 .login-page {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  min-height: 100vh;
-  background: linear-gradient(135deg, $primary-color 0%, $primary-light 100%);
-  padding: $spacing-lg;
+  padding: 24px 20px;
+  padding-bottom: calc(24px + env(safe-area-inset-bottom));
 }
 
-.login-container {
+/* 背景层 - 置于底层 */
+.login-bg {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, $primary-color 0%, $primary-light 50%, #93c5fd 100%);
+  z-index: 0;
+}
+
+/* 表单卡片 - 置于背景之上，可交互 */
+.login-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
-  max-width: 400px;
-  background: white;
+  max-width: 360px;
+  background: #ffffff;
   border-radius: $radius-xl;
-  padding: $spacing-3xl;
-  box-shadow: $shadow-lg;
+  padding: 32px 24px;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
 }
 
 .logo-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: $spacing-md;
-  margin-bottom: $spacing-3xl;
+  gap: 4px;
+  margin-bottom: 20px;
 }
 
 .logo-text {
-  font-size: 48px;
+  font-size: 32px;
+  line-height: 1;
 }
 
 .app-title {
-  font-size: $font-size-2xl;
+  font-size: 18px;
   font-weight: bold;
   color: $text-primary;
 }
 
 .app-subtitle {
-  font-size: $font-size-sm;
+  font-size: 12px;
   color: $text-secondary;
   text-align: center;
 }
@@ -146,85 +146,55 @@ const navigateTo = (path: string) => {
 .form-section {
   display: flex;
   flex-direction: column;
-  gap: $spacing-lg;
+  gap: 16px;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: $spacing-sm;
+  gap: 6px;
 }
 
 .form-label {
   font-size: $font-size-sm;
-  font-weight: bold;
+  font-weight: 600;
   color: $text-primary;
 }
 
 .form-input {
-  padding: $spacing-md;
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
   border: 1px solid $border-color;
   border-radius: $radius-md;
-  font-size: $font-size-md;
+  font-size: 16px;
   color: $text-primary;
-
-  &:focus {
-    border-color: $primary-color;
-    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  }
+  background: #ffffff;
+  box-sizing: border-box;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .login-button {
-  padding: $spacing-md;
+  padding: 14px 24px;
+  min-height: 48px;
   background: $primary-color;
   color: white;
   border: none;
   border-radius: $radius-md;
   font-size: $font-size-md;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
-
-  &:active {
-    background: $primary-dark;
-  }
-
-  &:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-  }
+  line-height: 1.5;
 }
 
-.divider {
-  display: flex;
-  align-items: center;
-  gap: $spacing-md;
-  color: $text-secondary;
-  font-size: $font-size-sm;
-
-  &::before,
-  &::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: $border-color;
-  }
+.login-button:active {
+  background: $primary-dark;
 }
 
-.register-button {
-  padding: $spacing-md;
-  background: white;
-  color: $primary-color;
-  border: 2px solid $primary-color;
-  border-radius: $radius-md;
-  font-size: $font-size-md;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s;
-
-  &:active {
-    background: $bg-secondary;
-  }
+.login-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .error-message {
@@ -232,15 +202,28 @@ const navigateTo = (path: string) => {
   font-size: $font-size-sm;
   text-align: center;
   padding: $spacing-md;
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(239, 68, 68, 0.08);
   border-radius: $radius-md;
+  border: 1px solid rgba(239, 68, 68, 0.2);
 }
 
 .demo-tip {
   text-align: center;
   color: $text-secondary;
   font-size: $font-size-sm;
-  padding-top: $spacing-md;
+  padding-top: $spacing-lg;
+  margin-top: $spacing-sm;
   border-top: 1px solid $border-color;
+}
+</style>
+
+<!-- 修复 uni-input 在 H5 下无法输入：覆盖其 overflow:hidden 和固定高度 -->
+<style lang="scss">
+.login-page uni-input,
+.login-page .uni-input-wrapper,
+.login-page .uni-input-form {
+  min-height: 44px !important;
+  height: auto !important;
+  overflow: visible !important;
 }
 </style>

@@ -25,7 +25,7 @@ module.exports = {
   LOG_LEVEL: process.env.LOG_LEVEL || 'info',
 
   // CORS 配置
-  CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:8080,http://localhost:5173',
+  CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:8080,http://localhost:5173,http://localhost:5174',
 
   // 第三方服务
   GOOGLE_TTS_API_KEY: process.env.GOOGLE_TTS_API_KEY || '',
