@@ -95,7 +95,7 @@ const goToDetail = (id: number) => {
 </script>
 
 <style scoped lang="scss">
-@import '@/styles/variables.scss';
+@use '@/styles/variables.scss' as *;
 
 .home-page {
   padding-bottom: 100px;

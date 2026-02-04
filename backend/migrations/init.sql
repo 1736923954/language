@@ -130,6 +130,5 @@ INSERT INTO categories (name, description, sort_order) VALUES
 ('Technology', 'Technology and IT', 7),
 ('Education', 'Education-related vocabulary', 8);
 
--- 创建默认管理员用户（密码: admin123）
-INSERT INTO users (username, email, password_hash, nickname, role, is_active) VALUES
-('admin', 'admin@example.com', '$2b$10$YourHashedPasswordHere', 'Administrator', 'admin', TRUE);
+-- 默认管理员用户需通过以下命令创建（密码: admin123）:
+-- npm run fix-admin  或  npm run seed

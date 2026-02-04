@@ -1,7 +1,5 @@
 <template>
-  <view class="app">
-    <router-view />
-  </view>
+  <view class="app" />
 </template>
 
 <script setup lang="ts">
@@ -19,8 +17,7 @@ onHide(() => {
 </script>
 
 <style lang="scss">
-@import '@/styles/variables.scss';
-@import '@/styles/global.scss';
+@use '@/styles/global.scss';
 
 .app {
   width: 100%;

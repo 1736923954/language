@@ -1,0 +1,13 @@
+{
+  "name": "English Learning",
+  "appid": "__UNI__ENGLISH_LEARNING",
+  "description": "英语学习应用",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "h5": {
+    "title": "English Learning",
+    "devServer": {
+      "port": 5173
+    }
+  }
+}

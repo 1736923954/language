@@ -64,6 +64,11 @@ exports.login = async (req, res, next) => {
       return error(res, 'User account is inactive', 403);
     }
 
+    // 管理后台登录：仅允许 admin 角色
+    if (req.headers['x-client'] === 'admin' && user.role !== 'admin') {
+      return error(res, '无权限：仅管理员可登录管理后台', 403);
+    }
+
     // 更新最后登录时间
     await user.update({ last_login: new Date() });
 

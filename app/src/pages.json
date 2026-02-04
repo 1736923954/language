@@ -49,26 +49,18 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "iconPath": "static/home.png",
-        "selectedIconPath": "static/home-active.png",
         "text": "Home"
       },
       {
         "pagePath": "pages/vocabularies/index",
-        "iconPath": "static/book.png",
-        "selectedIconPath": "static/book-active.png",
         "text": "Learn"
       },
       {
         "pagePath": "pages/progress/index",
-        "iconPath": "static/chart.png",
-        "selectedIconPath": "static/chart-active.png",
         "text": "Progress"
       },
       {
         "pagePath": "pages/profile/index",
-        "iconPath": "static/user.png",
-        "selectedIconPath": "static/user-active.png",
         "text": "Profile"
       }
     ]

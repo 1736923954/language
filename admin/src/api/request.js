@@ -14,6 +14,8 @@ request.interceptors.request.use(
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    // 标识请求来自管理后台，用于后端做权限校验
+    config.headers['X-Client'] = 'admin';
     return config;
   },
   error => Promise.reject(error)
