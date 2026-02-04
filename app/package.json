@@ -2,6 +2,13 @@
   "name": "english-learning-app",
   "version": "1.0.0",
   "main": "index.js",
+  "overrides": {
+    "vue": "3.4.21",
+    "@vue/runtime-core": "3.4.21",
+    "@vue/runtime-dom": "3.4.21",
+    "@vue/reactivity": "3.4.21",
+    "@vue/shared": "3.4.21"
+  },
   "scripts": {
     "dev:h5": "uni",
     "build:h5": "uni build",
@@ -16,7 +23,7 @@
     "@dcloudio/uni-components": "3.0.0-4080420251103001",
     "@dcloudio/uni-h5": "3.0.0-4080420251103001",
     "pinia": "^2.1.7",
-    "vue": "^3.4.21"
+    "vue": "3.4.21"
   },
   "devDependencies": {
     "@dcloudio/types": "^3.4.8",
