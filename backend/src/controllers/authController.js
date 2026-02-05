@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const prisma = require('../models');
 const { generateToken } = require('../utils/jwt');
 const { hashPassword, verifyPassword } = require('../utils/password');
 const { success, error } = require('../utils/response');
@@ -9,20 +9,30 @@ exports.register = async (req, res, next) => {
     const { username, email, password } = req.body;
 
     // 检查用户是否已存在
-    const existingUser = await User.findOne({ where: { username } });
+    const existingUser = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username },
+          ...(email ? [{ email }] : []),
+        ],
+      },
+    });
+
     if (existingUser) {
-      return error(res, 'Username already exists', 400);
+      return error(res, 'Username or email already exists', 400);
     }
 
     // 加密密码
     const password_hash = await hashPassword(password);
 
     // 创建用户
-    const user = await User.create({
-      username,
-      email,
-      password_hash,
-      nickname: username,
+    const user = await prisma.user.create({
+      data: {
+        username,
+        email,
+        password_hash,
+        nickname: username,
+      },
     });
 
     // 生成 Token
@@ -38,6 +48,9 @@ exports.register = async (req, res, next) => {
       },
     }, 'Registration successful', 201);
   } catch (err) {
+    if (err.code === 'P2002') {
+      return error(res, 'Username or email already exists', 400);
+    }
     next(err);
   }
 };
@@ -48,7 +61,10 @@ exports.login = async (req, res, next) => {
     const { username, password } = req.body;
 
     // 查找用户
-    const user = await User.findOne({ where: { username } });
+    const user = await prisma.user.findUnique({
+      where: { username },
+    });
+
     if (!user) {
       return error(res, 'Invalid username or password', 401);
     }
@@ -70,7 +86,10 @@ exports.login = async (req, res, next) => {
     }
 
     // 更新最后登录时间
-    await user.update({ last_login: new Date() });
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { last_login: new Date() },
+    });
 
     // 生成 Token
     const token = generateToken(user.id, user.role);
@@ -94,7 +113,9 @@ exports.login = async (req, res, next) => {
 exports.refreshToken = async (req, res, next) => {
   try {
     const userId = req.user.userId;
-    const user = await User.findByPk(userId);
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
 
     if (!user || !user.is_active) {
       return error(res, 'User not found or inactive', 401);

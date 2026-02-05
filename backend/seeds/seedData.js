@@ -1,5 +1,4 @@
-const sequelize = require('../src/config/database');
-const { User, Category, Vocabulary, Sentence } = require('../src/models');
+const prisma = require('../src/models');
 const { hashPassword } = require('../src/utils/password');
 
 const vocabularyData = [
@@ -406,24 +405,28 @@ async function seedDatabase() {
   try {
     console.log('Starting database seeding...');
 
-    // 同步数据库
-    await sequelize.sync({ force: true });
-    console.log('Database synchronized');
-
     // 创建管理员用户
     const adminPassword = await hashPassword('admin123');
-    const adminUser = await User.create({
-      username: 'admin',
-      email: 'admin@example.com',
-      password_hash: adminPassword,
-      nickname: 'Administrator',
-      role: 'admin',
-      is_active: true,
+    const adminUser = await prisma.user.upsert({
+      where: { username: 'admin' },
+      update: {
+        password_hash: adminPassword,
+        role: 'admin',
+        is_active: true,
+      },
+      create: {
+        username: 'admin',
+        email: 'admin@example.com',
+        password_hash: adminPassword,
+        nickname: 'Administrator',
+        role: 'admin',
+        is_active: true,
+      },
     });
-    console.log('Admin user created');
+    console.log('Admin user created/updated');
 
     // 创建分类
-    const categories = await Category.bulkCreate([
+    const categoriesData = [
       { name: 'Work', description: 'Work-related vocabulary', sort_order: 1 },
       { name: 'Daily Life', description: 'Daily life vocabulary', sort_order: 2 },
       { name: 'Communication', description: 'Communication and conversation', sort_order: 3 },
@@ -432,32 +435,63 @@ async function seedDatabase() {
       { name: 'Health', description: 'Health and wellness', sort_order: 6 },
       { name: 'Technology', description: 'Technology and IT', sort_order: 7 },
       { name: 'Education', description: 'Education-related vocabulary', sort_order: 8 },
-    ]);
-    console.log(`Created ${categories.length} categories`);
+    ];
+
+    const categories = await Promise.all(
+      categoriesData.map((cat) =>
+        prisma.category.upsert({
+          where: { name: cat.name },
+          update: cat,
+          create: cat,
+        })
+      )
+    );
+    console.log(`Created/Updated ${categories.length} categories`);
 
     // 创建词汇和句子
     let totalVocabularies = 0;
     let totalSentences = 0;
 
     for (const vocabData of vocabularyData) {
-      const category = categories.find(c => c.name === vocabData.category);
+      const category = categories.find((c) => c.name === vocabData.category);
       if (!category) continue;
 
-      const vocab = await Vocabulary.create({
-        word: vocabData.word,
-        phonetic: vocabData.phonetic,
-        definition: vocabData.definition,
-        definition_zh: vocabData.definition_zh,
-        part_of_speech: vocabData.part_of_speech,
-        difficulty_level: vocabData.difficulty_level,
-        category_id: category.id,
-        created_by: adminUser.id,
+      const vocab = await prisma.vocabulary.upsert({
+        where: {
+          unique_word_category: {
+            word: vocabData.word,
+            category_id: category.id,
+          },
+        },
+        update: {
+          phonetic: vocabData.phonetic,
+          definition: vocabData.definition,
+          definition_zh: vocabData.definition_zh,
+          part_of_speech: vocabData.part_of_speech,
+          difficulty_level: vocabData.difficulty_level,
+        },
+        create: {
+          word: vocabData.word,
+          phonetic: vocabData.phonetic,
+          definition: vocabData.definition,
+          definition_zh: vocabData.definition_zh,
+          part_of_speech: vocabData.part_of_speech,
+          difficulty_level: vocabData.difficulty_level,
+          category_id: category.id,
+          created_by: adminUser.id,
+          example_count: vocabData.sentences.length,
+        },
       });
 
       totalVocabularies++;
 
+      // 删除旧的句子（如果存在）
+      await prisma.sentence.deleteMany({
+        where: { vocabulary_id: vocab.id },
+      });
+
       // 创建句子
-      const sentencesData = vocabData.sentences.map(s => ({
+      const sentencesData = vocabData.sentences.map((s) => ({
         vocabulary_id: vocab.id,
         english_text: s.english_text,
         chinese_translation: s.chinese_translation,
@@ -466,17 +500,21 @@ async function seedDatabase() {
         created_by: adminUser.id,
       }));
 
-      await Sentence.bulkCreate(sentencesData);
+      await prisma.sentence.createMany({
+        data: sentencesData,
+      });
       totalSentences += sentencesData.length;
     }
 
-    console.log(`Created ${totalVocabularies} vocabularies`);
+    console.log(`Created/Updated ${totalVocabularies} vocabularies`);
     console.log(`Created ${totalSentences} sentences`);
     console.log('Database seeding completed successfully!');
 
+    await prisma.$disconnect();
     process.exit(0);
   } catch (error) {
     console.error('Error seeding database:', error);
+    await prisma.$disconnect();
     process.exit(1);
   }
 }

@@ -1,5 +1,4 @@
-const { UserProgress, Vocabulary } = require('../models');
-const { Op } = require('sequelize');
+const prisma = require('../models');
 const { success, error, paginated } = require('../utils/response');
 
 // 获取用户学习进度
@@ -7,20 +6,34 @@ exports.getProgress = async (req, res, next) => {
   try {
     const { page = 1, limit = 20, status } = req.query;
     const userId = req.user.userId;
-    const offset = (page - 1) * limit;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const take = parseInt(limit);
 
     const where = { user_id: userId };
-    if (status) where.status = status;
+    if (status) {
+      where.status = status;
+    }
 
-    const { count, rows } = await UserProgress.findAndCountAll({
-      where,
-      include: [{ model: Vocabulary, attributes: ['id', 'word', 'definition'] }],
-      offset,
-      limit: parseInt(limit),
-      order: [['updated_at', 'DESC']],
-    });
+    const [data, total] = await Promise.all([
+      prisma.userProgress.findMany({
+        where,
+        include: {
+          vocabulary: {
+            select: {
+              id: true,
+              word: true,
+              definition: true,
+            },
+          },
+        },
+        skip,
+        take,
+        orderBy: { updated_at: 'desc' },
+      }),
+      prisma.userProgress.count({ where }),
+    ]);
 
-    return paginated(res, rows, count, page, limit);
+    return paginated(res, data, total, parseInt(page), parseInt(limit));
   } catch (err) {
     next(err);
   }
@@ -32,8 +45,11 @@ exports.getVocabularyProgress = async (req, res, next) => {
     const { vocabularyId } = req.params;
     const userId = req.user.userId;
 
-    const progress = await UserProgress.findOne({
-      where: { user_id: userId, vocabulary_id: vocabularyId },
+    const progress = await prisma.userProgress.findFirst({
+      where: {
+        user_id: userId,
+        vocabulary_id: parseInt(vocabularyId),
+      },
     });
 
     if (!progress) {
@@ -52,25 +68,36 @@ exports.markWord = async (req, res, next) => {
     const { vocabulary_id, status, correct_count, wrong_count } = req.body;
     const userId = req.user.userId;
 
-    let progress = await UserProgress.findOne({
-      where: { user_id: userId, vocabulary_id },
+    const existingProgress = await prisma.userProgress.findFirst({
+      where: {
+        user_id: userId,
+        vocabulary_id: parseInt(vocabulary_id),
+      },
     });
 
-    if (!progress) {
-      progress = await UserProgress.create({
-        user_id: userId,
-        vocabulary_id,
-        status,
-        correct_count: correct_count || 0,
-        wrong_count: wrong_count || 0,
+    let progress;
+    if (!existingProgress) {
+      progress = await prisma.userProgress.create({
+        data: {
+          user_id: userId,
+          vocabulary_id: parseInt(vocabulary_id),
+          status,
+          correct_count: correct_count || 0,
+          wrong_count: wrong_count || 0,
+          last_reviewed_at: new Date(),
+          next_review_at: calculateNextReview(status),
+        },
       });
     } else {
-      await progress.update({
-        status,
-        correct_count: correct_count !== undefined ? correct_count : progress.correct_count,
-        wrong_count: wrong_count !== undefined ? wrong_count : progress.wrong_count,
-        last_reviewed_at: new Date(),
-        next_review_at: calculateNextReview(status),
+      progress = await prisma.userProgress.update({
+        where: { id: existingProgress.id },
+        data: {
+          status,
+          correct_count: correct_count !== undefined ? correct_count : existingProgress.correct_count,
+          wrong_count: wrong_count !== undefined ? wrong_count : existingProgress.wrong_count,
+          last_reviewed_at: new Date(),
+          next_review_at: calculateNextReview(status),
+        },
       });
     }
 
@@ -84,15 +111,16 @@ exports.markWord = async (req, res, next) => {
 exports.updateProgress = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const progress = await UserProgress.findByPk(id);
+    const progress = await prisma.userProgress.update({
+      where: { id: parseInt(id) },
+      data: req.body,
+    });
 
-    if (!progress) {
-      return error(res, 'Progress not found', 404);
-    }
-
-    await progress.update(req.body);
     return success(res, progress, 'Progress updated');
   } catch (err) {
+    if (err.code === 'P2025') {
+      return error(res, 'Progress not found', 404);
+    }
     next(err);
   }
 };
@@ -102,16 +130,18 @@ exports.getStatistics = async (req, res, next) => {
   try {
     const userId = req.user.userId;
 
-    const total = await UserProgress.count({ where: { user_id: userId } });
-    const mastered = await UserProgress.count({
-      where: { user_id: userId, status: 'mastered' },
-    });
-    const reviewing = await UserProgress.count({
-      where: { user_id: userId, status: 'reviewing' },
-    });
-    const learning = await UserProgress.count({
-      where: { user_id: userId, status: 'learning' },
-    });
+    const [total, mastered, reviewing, learning] = await Promise.all([
+      prisma.userProgress.count({ where: { user_id: userId } }),
+      prisma.userProgress.count({
+        where: { user_id: userId, status: 'mastered' },
+      }),
+      prisma.userProgress.count({
+        where: { user_id: userId, status: 'reviewing' },
+      }),
+      prisma.userProgress.count({
+        where: { user_id: userId, status: 'learning' },
+      }),
+    ]);
 
     const stats = {
       total,

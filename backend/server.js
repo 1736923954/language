@@ -1,13 +1,13 @@
 const app = require('./src/app');
-const sequelize = require('./src/config/database');
+const prisma = require('./src/models');
 const { PORT, HOST, NODE_ENV } = require('./src/config/env');
 
 // 启动服务器
 const startServer = async () => {
   try {
-    // 同步数据库
-    await sequelize.sync({ alter: NODE_ENV === 'development' });
-    console.log('✓ Database synchronized');
+    // 测试数据库连接
+    await prisma.$connect();
+    console.log('✓ Database connected');
 
     // 启动服务器
     app.listen(PORT, HOST, () => {
@@ -25,12 +25,12 @@ startServer();
 // 优雅关闭
 process.on('SIGTERM', async () => {
   console.log('SIGTERM signal received: closing HTTP server');
-  await sequelize.close();
+  await prisma.$disconnect();
   process.exit(0);
 });
 
 process.on('SIGINT', async () => {
   console.log('SIGINT signal received: closing HTTP server');
-  await sequelize.close();
+  await prisma.$disconnect();
   process.exit(0);
 });

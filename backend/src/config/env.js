@@ -12,6 +12,8 @@ module.exports = {
   DB_NAME: process.env.DB_NAME || 'english_learning',
   DB_USER: process.env.DB_USER || 'root',
   DB_PASSWORD: process.env.DB_PASSWORD || '',
+  // Prisma DATABASE_URL（如果没有设置，自动构建）
+  DATABASE_URL: process.env.DATABASE_URL || `mysql://${process.env.DB_USER || 'root'}:${process.env.DB_PASSWORD || ''}@${process.env.DB_HOST || 'localhost'}:${process.env.DB_PORT || 3306}/${process.env.DB_NAME || 'english_learning'}?charset=utf8mb4&connection_limit=10`,
 
   // JWT 配置
   JWT_SECRET: process.env.JWT_SECRET || 'your_jwt_secret_key_here',

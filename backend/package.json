@@ -7,6 +7,11 @@
     "dev": "NODE_ENV=development node server.js",
     "seed": "node seeds/seedData.js",
     "fix-admin": "node scripts/fixAdminUser.js",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:migrate:deploy": "prisma migrate deploy",
+    "prisma:studio": "prisma studio",
+    "prisma:push": "prisma db push",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
@@ -14,6 +19,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@prisma/client": "^5.20.0",
     "axios": "^1.13.4",
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
@@ -22,8 +28,9 @@
     "joi": "^18.0.2",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
-    "mysql2": "^3.16.3",
-    "sequelize": "^6.37.7",
     "winston": "^3.19.0"
+  },
+  "devDependencies": {
+    "prisma": "^5.20.0"
   }
 }

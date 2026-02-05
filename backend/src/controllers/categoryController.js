@@ -1,11 +1,11 @@
-const { Category } = require('../models');
+const prisma = require('../models');
 const { success, error } = require('../utils/response');
 
 // 获取所有分类
 exports.getList = async (req, res, next) => {
   try {
-    const categories = await Category.findAll({
-      order: [['sort_order', 'ASC']],
+    const categories = await prisma.category.findMany({
+      orderBy: { sort_order: 'asc' },
     });
     return success(res, categories);
   } catch (err) {
@@ -17,7 +17,9 @@ exports.getList = async (req, res, next) => {
 exports.getById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const category = await Category.findByPk(id);
+    const category = await prisma.category.findUnique({
+      where: { id: parseInt(id) },
+    });
 
     if (!category) {
       return error(res, 'Category not found', 404);
@@ -34,15 +36,20 @@ exports.create = async (req, res, next) => {
   try {
     const { name, description, icon_url, sort_order } = req.body;
 
-    const category = await Category.create({
-      name,
-      description,
-      icon_url,
-      sort_order: sort_order || 0,
+    const category = await prisma.category.create({
+      data: {
+        name,
+        description,
+        icon_url,
+        sort_order: sort_order || 0,
+      },
     });
 
     return success(res, category, 'Category created', 201);
   } catch (err) {
+    if (err.code === 'P2002') {
+      return error(res, 'Category name already exists', 400);
+    }
     next(err);
   }
 };
@@ -51,15 +58,16 @@ exports.create = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const category = await Category.findByPk(id);
+    const category = await prisma.category.update({
+      where: { id: parseInt(id) },
+      data: req.body,
+    });
 
-    if (!category) {
-      return error(res, 'Category not found', 404);
-    }
-
-    await category.update(req.body);
     return success(res, category, 'Category updated');
   } catch (err) {
+    if (err.code === 'P2025') {
+      return error(res, 'Category not found', 404);
+    }
     next(err);
   }
 };
@@ -68,15 +76,18 @@ exports.update = async (req, res, next) => {
 exports.delete = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const category = await Category.findByPk(id);
+    await prisma.category.delete({
+      where: { id: parseInt(id) },
+    });
 
-    if (!category) {
-      return error(res, 'Category not found', 404);
-    }
-
-    await category.destroy();
     return success(res, null, 'Category deleted');
   } catch (err) {
+    if (err.code === 'P2025') {
+      return error(res, 'Category not found', 404);
+    }
+    if (err.code === 'P2003') {
+      return error(res, 'Cannot delete category with associated vocabularies', 400);
+    }
     next(err);
   }
 };

@@ -1,32 +1,50 @@
-const { Vocabulary, Category, Sentence } = require('../models');
-const { Op } = require('sequelize');
+const prisma = require('../models');
 const { success, error, paginated } = require('../utils/response');
 
 // 获取词汇列表
 exports.getList = async (req, res, next) => {
   try {
     const { page = 1, limit = 20, word, category_id, difficulty_level } = req.query;
-    const offset = (page - 1) * limit;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const take = parseInt(limit);
 
     const where = { is_active: true };
-    if (word) where.word = { [Op.like]: `%${word}%` };
-    if (category_id) where.category_id = category_id;
-    if (difficulty_level) where.difficulty_level = difficulty_level;
+    if (word) {
+      where.word = { contains: word };
+    }
+    if (category_id) {
+      where.category_id = parseInt(category_id);
+    }
+    if (difficulty_level) {
+      where.difficulty_level = difficulty_level;
+    }
 
-    const { count, rows } = await Vocabulary.findAndCountAll({
-      where,
-      include: [{ model: Category, attributes: ['id', 'name'] }],
-      offset,
-      limit: parseInt(limit),
-      order: [['created_at', 'DESC']],
-    });
+    const [data, total] = await Promise.all([
+      prisma.vocabulary.findMany({
+        where,
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+            },
+          },
+        },
+        skip,
+        take,
+        orderBy: { created_at: 'desc' },
+      }),
+      prisma.vocabulary.count({ where }),
+    ]);
 
-    const data = rows.map(v => ({
-      ...v.dataValues,
-      category_name: v.Category?.name,
+    // 格式化数据
+    const formattedData = data.map((v) => ({
+      ...v,
+      category_name: v.category?.name,
+      Category: v.category, // 保持兼容性
     }));
 
-    return paginated(res, data, count, page, limit);
+    return paginated(res, formattedData, total, parseInt(page), parseInt(limit));
   } catch (err) {
     next(err);
   }
@@ -36,11 +54,24 @@ exports.getList = async (req, res, next) => {
 exports.getById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const vocabulary = await Vocabulary.findByPk(id, {
-      include: [
-        { model: Category, attributes: ['id', 'name'] },
-        { model: Sentence, attributes: ['id', 'english_text', 'chinese_translation'] },
-      ],
+    const vocabulary = await prisma.vocabulary.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
+        sentences: {
+          where: { is_active: true },
+          select: {
+            id: true,
+            english_text: true,
+            chinese_translation: true,
+          },
+        },
+      },
     });
 
     if (!vocabulary) {
@@ -58,19 +89,24 @@ exports.create = async (req, res, next) => {
   try {
     const { word, phonetic, definition, definition_zh, part_of_speech, difficulty_level, category_id } = req.body;
 
-    const vocabulary = await Vocabulary.create({
-      word,
-      phonetic,
-      definition,
-      definition_zh,
-      part_of_speech,
-      difficulty_level,
-      category_id,
-      created_by: req.user?.userId,
+    const vocabulary = await prisma.vocabulary.create({
+      data: {
+        word,
+        phonetic,
+        definition,
+        definition_zh,
+        part_of_speech,
+        difficulty_level,
+        category_id: parseInt(category_id),
+        created_by: req.user?.userId,
+      },
     });
 
     return success(res, vocabulary, 'Vocabulary created', 201);
   } catch (err) {
+    if (err.code === 'P2002') {
+      return error(res, 'Vocabulary already exists in this category', 400);
+    }
     next(err);
   }
 };
@@ -79,15 +115,16 @@ exports.create = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const vocabulary = await Vocabulary.findByPk(id);
+    const vocabulary = await prisma.vocabulary.update({
+      where: { id: parseInt(id) },
+      data: req.body,
+    });
 
-    if (!vocabulary) {
-      return error(res, 'Vocabulary not found', 404);
-    }
-
-    await vocabulary.update(req.body);
     return success(res, vocabulary, 'Vocabulary updated');
   } catch (err) {
+    if (err.code === 'P2025') {
+      return error(res, 'Vocabulary not found', 404);
+    }
     next(err);
   }
 };
@@ -96,15 +133,16 @@ exports.update = async (req, res, next) => {
 exports.delete = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const vocabulary = await Vocabulary.findByPk(id);
+    const vocabulary = await prisma.vocabulary.update({
+      where: { id: parseInt(id) },
+      data: { is_active: false },
+    });
 
-    if (!vocabulary) {
+    return success(res, vocabulary, 'Vocabulary deleted');
+  } catch (err) {
+    if (err.code === 'P2025') {
       return error(res, 'Vocabulary not found', 404);
     }
-
-    await vocabulary.update({ is_active: false });
-    return success(res, null, 'Vocabulary deleted');
-  } catch (err) {
     next(err);
   }
 };
@@ -114,16 +152,25 @@ exports.getByCategory = async (req, res, next) => {
   try {
     const { categoryId } = req.params;
     const { page = 1, limit = 20 } = req.query;
-    const offset = (page - 1) * limit;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const take = parseInt(limit);
 
-    const { count, rows } = await Vocabulary.findAndCountAll({
-      where: { category_id: categoryId, is_active: true },
-      offset,
-      limit: parseInt(limit),
-      order: [['created_at', 'DESC']],
-    });
+    const where = {
+      category_id: parseInt(categoryId),
+      is_active: true,
+    };
 
-    return paginated(res, rows, count, page, limit);
+    const [data, total] = await Promise.all([
+      prisma.vocabulary.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { created_at: 'desc' },
+      }),
+      prisma.vocabulary.count({ where }),
+    ]);
+
+    return paginated(res, data, total, parseInt(page), parseInt(limit));
   } catch (err) {
     next(err);
   }

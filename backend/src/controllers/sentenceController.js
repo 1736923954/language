@@ -1,26 +1,40 @@
-const { Sentence, Vocabulary } = require('../models');
-const { Op } = require('sequelize');
+const prisma = require('../models');
 const { success, error, paginated } = require('../utils/response');
 
 // 获取句子列表
 exports.getList = async (req, res, next) => {
   try {
     const { page = 1, limit = 20, vocabulary_id, difficulty_level } = req.query;
-    const offset = (page - 1) * limit;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const take = parseInt(limit);
 
     const where = { is_active: true };
-    if (vocabulary_id) where.vocabulary_id = vocabulary_id;
-    if (difficulty_level) where.difficulty_level = difficulty_level;
+    if (vocabulary_id) {
+      where.vocabulary_id = parseInt(vocabulary_id);
+    }
+    if (difficulty_level) {
+      where.difficulty_level = difficulty_level;
+    }
 
-    const { count, rows } = await Sentence.findAndCountAll({
-      where,
-      include: [{ model: Vocabulary, attributes: ['id', 'word'] }],
-      offset,
-      limit: parseInt(limit),
-      order: [['created_at', 'DESC']],
-    });
+    const [data, total] = await Promise.all([
+      prisma.sentence.findMany({
+        where,
+        include: {
+          vocabulary: {
+            select: {
+              id: true,
+              word: true,
+            },
+          },
+        },
+        skip,
+        take,
+        orderBy: { created_at: 'desc' },
+      }),
+      prisma.sentence.count({ where }),
+    ]);
 
-    return paginated(res, rows, count, page, limit);
+    return paginated(res, data, total, parseInt(page), parseInt(limit));
   } catch (err) {
     next(err);
   }
@@ -30,8 +44,16 @@ exports.getList = async (req, res, next) => {
 exports.getById = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const sentence = await Sentence.findByPk(id, {
-      include: [{ model: Vocabulary, attributes: ['id', 'word'] }],
+    const sentence = await prisma.sentence.findUnique({
+      where: { id: parseInt(id) },
+      include: {
+        vocabulary: {
+          select: {
+            id: true,
+            word: true,
+          },
+        },
+      },
     });
 
     if (!sentence) {
@@ -49,21 +71,33 @@ exports.create = async (req, res, next) => {
   try {
     const { vocabulary_id, english_text, chinese_translation, usage_context, difficulty_level } = req.body;
 
-    const sentence = await Sentence.create({
-      vocabulary_id,
-      english_text,
-      chinese_translation,
-      usage_context,
-      difficulty_level,
-      created_by: req.user?.userId,
+    // 使用事务：创建句子并更新词汇的例句数量
+    const result = await prisma.$transaction(async (tx) => {
+      const sentence = await tx.sentence.create({
+        data: {
+          vocabulary_id: parseInt(vocabulary_id),
+          english_text,
+          chinese_translation,
+          usage_context,
+          difficulty_level,
+          created_by: req.user?.userId,
+        },
+      });
+
+      // 更新词汇的例句数量
+      await tx.vocabulary.update({
+        where: { id: parseInt(vocabulary_id) },
+        data: {
+          example_count: {
+            increment: 1,
+          },
+        },
+      });
+
+      return sentence;
     });
 
-    // 更新词汇的例句数量
-    await Vocabulary.increment('example_count', {
-      where: { id: vocabulary_id },
-    });
-
-    return success(res, sentence, 'Sentence created', 201);
+    return success(res, result, 'Sentence created', 201);
   } catch (err) {
     next(err);
   }
@@ -73,15 +107,16 @@ exports.create = async (req, res, next) => {
 exports.update = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const sentence = await Sentence.findByPk(id);
+    const sentence = await prisma.sentence.update({
+      where: { id: parseInt(id) },
+      data: req.body,
+    });
 
-    if (!sentence) {
-      return error(res, 'Sentence not found', 404);
-    }
-
-    await sentence.update(req.body);
     return success(res, sentence, 'Sentence updated');
   } catch (err) {
+    if (err.code === 'P2025') {
+      return error(res, 'Sentence not found', 404);
+    }
     next(err);
   }
 };
@@ -90,21 +125,41 @@ exports.update = async (req, res, next) => {
 exports.delete = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const sentence = await Sentence.findByPk(id);
 
-    if (!sentence) {
-      return error(res, 'Sentence not found', 404);
-    }
+    // 使用事务：软删除句子并更新词汇的例句数量
+    const result = await prisma.$transaction(async (tx) => {
+      const sentence = await tx.sentence.findUnique({
+        where: { id: parseInt(id) },
+      });
 
-    await sentence.update({ is_active: false });
+      if (!sentence) {
+        throw new Error('Sentence not found');
+      }
 
-    // 更新词汇的例句数量
-    await Vocabulary.decrement('example_count', {
-      where: { id: sentence.vocabulary_id },
+      // 软删除
+      await tx.sentence.update({
+        where: { id: parseInt(id) },
+        data: { is_active: false },
+      });
+
+      // 更新词汇的例句数量
+      await tx.vocabulary.update({
+        where: { id: sentence.vocabulary_id },
+        data: {
+          example_count: {
+            decrement: 1,
+          },
+        },
+      });
+
+      return sentence;
     });
 
     return success(res, null, 'Sentence deleted');
   } catch (err) {
+    if (err.message === 'Sentence not found' || err.code === 'P2025') {
+      return error(res, 'Sentence not found', 404);
+    }
     next(err);
   }
 };
@@ -114,16 +169,25 @@ exports.getByVocabulary = async (req, res, next) => {
   try {
     const { vocabularyId } = req.params;
     const { page = 1, limit = 20 } = req.query;
-    const offset = (page - 1) * limit;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+    const take = parseInt(limit);
 
-    const { count, rows } = await Sentence.findAndCountAll({
-      where: { vocabulary_id: vocabularyId, is_active: true },
-      offset,
-      limit: parseInt(limit),
-      order: [['created_at', 'DESC']],
-    });
+    const where = {
+      vocabulary_id: parseInt(vocabularyId),
+      is_active: true,
+    };
 
-    return paginated(res, rows, count, page, limit);
+    const [data, total] = await Promise.all([
+      prisma.sentence.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { created_at: 'desc' },
+      }),
+      prisma.sentence.count({ where }),
+    ]);
+
+    return paginated(res, data, total, parseInt(page), parseInt(limit));
   } catch (err) {
     next(err);
   }

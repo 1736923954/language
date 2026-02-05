@@ -1,0 +1,173 @@
+// Prisma Schema - English Learning Database
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum DifficultyLevel {
+  A1
+  A2
+  B1
+  B2
+  C1
+  C2
+}
+
+enum UserRole {
+  user
+  admin
+}
+
+enum ProgressStatus {
+  learning
+  reviewing
+  mastered
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  username     String    @unique @db.VarChar(50)
+  email        String?   @unique @db.VarChar(100)
+  password_hash String   @db.VarChar(255)
+  phone        String?   @db.VarChar(20)
+  avatar_url   String?   @db.VarChar(255)
+  nickname     String?   @db.VarChar(50)
+  level        DifficultyLevel @default(B1)
+  role         UserRole  @default(user)
+  last_login   DateTime?
+  is_active    Boolean   @default(true)
+  created_at   DateTime  @default(now())
+  updated_at   DateTime  @updatedAt
+
+  // Relations
+  vocabularies_created Vocabulary[] @relation("CreatedBy")
+  sentences_created    Sentence[]    @relation("CreatedBy")
+  progress             UserProgress[]
+  audio_files          AudioFile[]
+
+  @@index([email])
+  @@index([username])
+  @@index([created_at])
+  @@map("users")
+}
+
+model Category {
+  id          Int       @id @default(autoincrement())
+  name        String    @unique @db.VarChar(50)
+  description String?   @db.Text
+  icon_url    String?   @db.VarChar(255)
+  sort_order  Int       @default(0)
+  created_at  DateTime  @default(now())
+  updated_at  DateTime  @updatedAt
+
+  // Relations
+  vocabularies Vocabulary[]
+
+  @@index([sort_order])
+  @@map("categories")
+}
+
+model Vocabulary {
+  id              Int             @id @default(autoincrement())
+  word            String          @db.VarChar(100)
+  phonetic        String?         @db.VarChar(100)
+  definition      String           @db.Text
+  definition_zh   String?          @db.VarChar(255)
+  part_of_speech  String?         @db.VarChar(20)
+  difficulty_level DifficultyLevel @default(B1)
+  category_id     Int
+  audio_url       String?         @db.VarChar(255)
+  image_url       String?         @db.VarChar(255)
+  example_count   Int             @default(0)
+  created_by      Int?
+  is_active       Boolean         @default(true)
+  created_at      DateTime        @default(now())
+  updated_at      DateTime        @updatedAt
+
+  // Relations
+  category        Category         @relation(fields: [category_id], references: [id], onDelete: Restrict)
+  creator         User?            @relation("CreatedBy", fields: [created_by], references: [id], onDelete: SetNull)
+  sentences       Sentence[]
+  progress        UserProgress[]
+  audio_files     AudioFile[]
+
+  @@unique([word, category_id], name: "unique_word_category")
+  @@index([word])
+  @@index([category_id])
+  @@index([difficulty_level])
+  @@index([is_active])
+  @@map("vocabularies")
+}
+
+model Sentence {
+  id                 Int             @id @default(autoincrement())
+  vocabulary_id      Int
+  english_text       String          @db.Text
+  chinese_translation String?        @db.VarChar(500)
+  audio_url          String?         @db.VarChar(255)
+  usage_context      String?         @db.VarChar(100)
+  difficulty_level   DifficultyLevel @default(B1)
+  created_by         Int?
+  is_active          Boolean         @default(true)
+  created_at         DateTime        @default(now())
+  updated_at         DateTime        @updatedAt
+
+  // Relations
+  vocabulary         Vocabulary      @relation(fields: [vocabulary_id], references: [id], onDelete: Cascade)
+  creator            User?           @relation("CreatedBy", fields: [created_by], references: [id], onDelete: SetNull)
+  audio_files        AudioFile[]
+
+  @@index([vocabulary_id])
+  @@index([difficulty_level])
+  @@index([is_active])
+  @@map("sentences")
+}
+
+model UserProgress {
+  id              Int            @id @default(autoincrement())
+  user_id         Int
+  vocabulary_id   Int
+  status          ProgressStatus @default(learning)
+  correct_count   Int            @default(0)
+  wrong_count     Int            @default(0)
+  last_reviewed_at DateTime?
+  next_review_at  DateTime?
+  created_at      DateTime       @default(now())
+  updated_at      DateTime       @updatedAt
+
+  // Relations
+  user            User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  vocabulary      Vocabulary     @relation(fields: [vocabulary_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, vocabulary_id], name: "unique_user_vocab")
+  @@index([user_id])
+  @@index([status])
+  @@index([next_review_at])
+  @@map("user_progress")
+}
+
+model AudioFile {
+  id           Int       @id @default(autoincrement())
+  file_name    String    @db.VarChar(255)
+  file_path    String    @db.VarChar(255)
+  file_size    Int?
+  file_type    String?   @db.VarChar(20)
+  duration     Float?
+  vocabulary_id Int?
+  sentence_id   Int?
+  uploaded_by   Int?
+  created_at    DateTime  @default(now())
+
+  // Relations
+  vocabulary    Vocabulary? @relation(fields: [vocabulary_id], references: [id], onDelete: SetNull)
+  sentence      Sentence?   @relation(fields: [sentence_id], references: [id], onDelete: SetNull)
+  uploader      User?       @relation(fields: [uploaded_by], references: [id], onDelete: SetNull)
+
+  @@index([vocabulary_id])
+  @@index([sentence_id])
+  @@map("audio_files")
+}

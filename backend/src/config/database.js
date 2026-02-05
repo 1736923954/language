@@ -1,32 +1,39 @@
-const { Sequelize } = require('sequelize');
-require('dotenv').config();
+const { PrismaClient } = require('@prisma/client');
+const { DATABASE_URL } = require('./env');
 
-const sequelize = new Sequelize(
-  process.env.DB_NAME || 'english_learning',
-  process.env.DB_USER || 'root',
-  process.env.DB_PASSWORD || '',
-  {
-    host: process.env.DB_HOST || 'localhost',
-    port: process.env.DB_PORT || 3306,
-    dialect: 'mysql',
-    logging: process.env.NODE_ENV === 'development' ? console.log : false,
-    pool: {
-      max: 5,
-      min: 0,
-      acquire: 30000,
-      idle: 10000,
+// 创建 Prisma Client 实例
+const prisma = new PrismaClient({
+  datasources: {
+    db: {
+      url: DATABASE_URL,
     },
-    timezone: '+08:00',
-  }
-);
+  },
+  log: process.env.NODE_ENV === 'development' ? ['query', 'error', 'warn'] : ['error'],
+  errorFormat: 'pretty',
+});
 
 // 测试数据库连接
-sequelize.authenticate()
-  .then(() => {
+async function connectDatabase() {
+  try {
+    await prisma.$connect();
     console.log('✓ Database connection successful');
-  })
-  .catch(err => {
+  } catch (err) {
     console.error('✗ Database connection failed:', err.message);
-  });
+    throw err;
+  }
+}
 
-module.exports = sequelize;
+// 优雅关闭
+async function disconnectDatabase() {
+  await prisma.$disconnect();
+}
+
+// 初始化时连接数据库
+if (process.env.NODE_ENV !== 'test') {
+  connectDatabase().catch((err) => {
+    console.error('Failed to connect to database:', err);
+    process.exit(1);
+  });
+}
+
+module.exports = prisma;
