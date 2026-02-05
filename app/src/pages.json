@@ -11,7 +11,10 @@
     {
       "path": "pages/index/index",
       "style": {
-        "navigationBarTitleText": "English Learning"
+        "navigationBarTitleText": "English Learning",
+        "navigationBarBackgroundColor": "#4CAF50",
+        "navigationBarTextStyle": "white",
+        "enablePullDownRefresh": false
       }
     },
     {
@@ -24,52 +27,81 @@
     {
       "path": "pages/vocabularies/index",
       "style": {
-        "navigationBarTitleText": "Vocabularies"
+        "navigationBarTitleText": "Learn",
+        "navigationBarBackgroundColor": "#4CAF50",
+        "navigationBarTextStyle": "white",
+        "enablePullDownRefresh": true
       }
     },
     {
       "path": "pages/vocabulary-detail/index",
       "style": {
-        "navigationBarTitleText": "Vocabulary Detail"
+        "navigationBarTitleText": "Vocabulary",
+        "navigationBarBackgroundColor": "#4CAF50",
+        "navigationBarTextStyle": "white"
       }
     },
     {
       "path": "pages/progress/index",
       "style": {
-        "navigationBarTitleText": "Learning Progress"
+        "navigationBarTitleText": "Progress",
+        "navigationBarBackgroundColor": "#4CAF50",
+        "navigationBarTextStyle": "white"
       }
     },
     {
       "path": "pages/profile/index",
       "style": {
-        "navigationBarTitleText": "Profile"
+        "navigationBarTitleText": "Profile",
+        "navigationBarBackgroundColor": "#4CAF50",
+        "navigationBarTextStyle": "white"
       }
     }
   ],
   "globalStyle": {
-    "navigationBarTextStyle": "black",
+    "navigationBarTextStyle": "white",
     "navigationBarTitleText": "English Learning",
-    "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#FFFFFF"
+    "navigationBarBackgroundColor": "#4CAF50",
+    "backgroundColor": "#f9fafb",
+    "backgroundTextStyle": "light",
+    "app-plus": {
+      "titleNView": false
+    }
   },
   "tabBar": {
-    "borderStyle": "black",
+    "color": "#9ca3af",
+    "selectedColor": "#4CAF50",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "white",
+    "height": "56px",
+    "fontSize": "12px",
+    "spacing": "4px",
+    "iconWidth": "24px",
+    "midButton": false,
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "Home"
+        "text": "Home",
+        "iconPath": "static/tabbar/home.png",
+        "selectedIconPath": "static/tabbar/home-active.png"
       },
       {
         "pagePath": "pages/vocabularies/index",
-        "text": "Learn"
+        "text": "Learn",
+        "iconPath": "static/tabbar/learn.png",
+        "selectedIconPath": "static/tabbar/learn-active.png"
       },
       {
         "pagePath": "pages/progress/index",
-        "text": "Progress"
+        "text": "Progress",
+        "iconPath": "static/tabbar/progress.png",
+        "selectedIconPath": "static/tabbar/progress-active.png"
       },
       {
         "pagePath": "pages/profile/index",
-        "text": "Profile"
+        "text": "Profile",
+        "iconPath": "static/tabbar/profile.png",
+        "selectedIconPath": "static/tabbar/profile-active.png"
       }
     ]
   }

@@ -1,30 +1,41 @@
-// 颜色变量 - 参考 Duolingo/Memrise 风格
-$primary-color: #58cc02; // Duolingo 绿色
-$primary-light: #89e219;
-$primary-dark: #3ea600;
-$primary-gradient: linear-gradient(135deg, #58cc02 0%, #89e219 100%);
-$secondary-color: #1cb0f6; // 蓝色
-$success-color: #58cc02;
-$warning-color: #ffc800;
-$error-color: #ff4b4b;
-$info-color: #9b59b6;
+// ============================================
+// 设计系统变量 - 现代化英语学习应用风格
+// ============================================
 
-// 渐变背景
-$gradient-primary: linear-gradient(135deg, #58cc02 0%, #89e219 50%, #b8e986 100%);
-$gradient-blue: linear-gradient(135deg, #1cb0f6 0%, #4dd0e1 100%);
-$gradient-purple: linear-gradient(135deg, #9b59b6 0%, #bb8fce 100%);
-$gradient-warm: linear-gradient(135deg, #ff6b6b 0%, #ffa500 100%);
+// 主色调 - 更柔和的绿色系
+$primary-color: #4CAF50; // Material Green
+$primary-light: #81C784;
+$primary-dark: #388E3C;
+$primary-gradient: linear-gradient(135deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%);
 
-// 中性色
-$text-primary: #1f2937;
-$text-secondary: #6b7280;
-$text-tertiary: #9ca3af;
-$bg-primary: #ffffff;
-$bg-secondary: #f9fafb;
-$bg-tertiary: #f3f4f6;
-$border-color: #e5e7eb;
+// 辅助色 - 更丰富的色彩系统
+$secondary-color: #2196F3; // Material Blue
+$accent-color: #FF9800; // Material Orange
+$success-color: #4CAF50;
+$warning-color: #FFC107;
+$error-color: #F44336;
+$info-color: #00BCD4;
 
-// 间距
+// 渐变背景 - 更柔和的渐变
+$gradient-primary: linear-gradient(135deg, #4CAF50 0%, #66BB6A 50%, #81C784 100%);
+$gradient-blue: linear-gradient(135deg, #2196F3 0%, #42A5F5 50%, #64B5F6 100%);
+$gradient-purple: linear-gradient(135deg, #9C27B0 0%, #BA68C8 50%, #CE93D8 100%);
+$gradient-orange: linear-gradient(135deg, #FF9800 0%, #FFB74D 50%, #FFCC80 100%);
+$gradient-pink: linear-gradient(135deg, #E91E63 0%, #F06292 50%, #F48FB1 100%);
+$gradient-teal: linear-gradient(135deg, #009688 0%, #26A69A 50%, #4DB6AC 100%);
+
+// 中性色 - 更柔和的灰色系
+$text-primary: #212121;
+$text-secondary: #757575;
+$text-tertiary: #BDBDBD;
+$text-disabled: #E0E0E0;
+$bg-primary: #FFFFFF;
+$bg-secondary: #FAFAFA;
+$bg-tertiary: #F5F5F5;
+$border-color: #E0E0E0;
+$divider-color: #EEEEEE;
+
+// 间距系统 - 4px 基准
 $spacing-xs: 4px;
 $spacing-sm: 8px;
 $spacing-md: 12px;
@@ -32,26 +43,98 @@ $spacing-lg: 16px;
 $spacing-xl: 20px;
 $spacing-2xl: 24px;
 $spacing-3xl: 32px;
+$spacing-4xl: 40px;
+$spacing-5xl: 48px;
+$spacing-6xl: 64px;
 
-// 圆角 - 更大的圆角更现代
-$radius-sm: 6px;
+// 圆角系统
+$radius-xs: 4px;
+$radius-sm: 8px;
 $radius-md: 12px;
 $radius-lg: 16px;
 $radius-xl: 20px;
 $radius-2xl: 24px;
+$radius-3xl: 32px;
+$radius-full: 9999px;
 
-// 字体
-$font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-$font-size-xs: 12px;
-$font-size-sm: 14px;
-$font-size-md: 16px;
-$font-size-lg: 18px;
-$font-size-xl: 20px;
-$font-size-2xl: 24px;
+// 字体系统
+$font-family-base: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+$font-family-display: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
 
-// 阴影 - 更立体的阴影效果
+// 字体大小
+$font-size-xs: 10px;
+$font-size-sm: 12px;
+$font-size-md: 14px;
+$font-size-lg: 16px;
+$font-size-xl: 18px;
+$font-size-2xl: 20px;
+$font-size-3xl: 24px;
+$font-size-4xl: 28px;
+$font-size-5xl: 32px;
+$font-size-6xl: 40px;
+
+// 字重
+$font-weight-light: 300;
+$font-weight-normal: 400;
+$font-weight-medium: 500;
+$font-weight-semibold: 600;
+$font-weight-bold: 700;
+
+// 行高
+$line-height-tight: 1.2;
+$line-height-normal: 1.5;
+$line-height-relaxed: 1.6;
+$line-height-loose: 1.8;
+
+// 阴影系统 - Material Design 风格
+$shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
 $shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.08);
-$shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
-$shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.12);
-$shadow-card: 0 2px 8px rgba(88, 204, 2, 0.15);
-$shadow-hover: 0 6px 20px rgba(88, 204, 2, 0.2);
+$shadow-md: 0 4px 8px rgba(0, 0, 0, 0.12);
+$shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.15);
+$shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.18);
+$shadow-2xl: 0 16px 32px rgba(0, 0, 0, 0.2);
+$shadow-card: 0 2px 8px rgba(0, 0, 0, 0.1);
+$shadow-hover: 0 8px 24px rgba(76, 175, 80, 0.25);
+$shadow-elevated: 0 12px 40px rgba(0, 0, 0, 0.15);
+
+// 动画时长
+$duration-fast: 0.15s;
+$duration-normal: 0.3s;
+$duration-slow: 0.5s;
+$duration-slower: 0.8s;
+
+// 动画缓动
+$ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+$ease-out: cubic-bezier(0, 0, 0.2, 1);
+$ease-in: cubic-bezier(0.4, 0, 1, 1);
+$ease-bounce: cubic-bezier(0.68, -0.55, 0.265, 1.55);
+$ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+// Z-index 层级
+$z-dropdown: 1000;
+$z-sticky: 1020;
+$z-fixed: 1030;
+$z-modal-backdrop: 1040;
+$z-modal: 1050;
+$z-popover: 1060;
+$z-tooltip: 1070;
+
+// 难度等级颜色映射
+$difficulty-colors: (
+  A1: #4CAF50,
+  A2: #66BB6A,
+  B1: #FFC107,
+  B2: #FF9800,
+  C1: #FF5722,
+  C2: #F44336,
+);
+
+// 难度等级背景色
+$difficulty-bg-colors: (
+  A1: rgba(76, 175, 80, 0.1),
+  A2: rgba(102, 187, 106, 0.1),
+  B1: rgba(255, 193, 7, 0.1),
+  B2: rgba(255, 152, 0, 0.1),
+  C1: rgba(255, 87, 34, 0.1),
+  C2: rgba(244, 67, 54, 0.1),
+);
