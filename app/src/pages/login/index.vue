@@ -11,7 +11,7 @@
     <view class="login-container">
       <view class="login-card">
         <!-- Logo 区域 -->
-        <!-- <view class="logo-section">
+        <view class="logo-section">
           <view class="logo-wrapper">
             <view class="logo-icon">
               <u-icon name="bookmark-fill" size="40" color="#4CAF50" />
@@ -20,7 +20,7 @@
           </view>
           <text class="app-title">English Learning</text>
           <text class="app-subtitle">Master English at your own pace</text>
-        </view> -->
+        </view>
 
         <!-- 表单区域 -->
         <view class="form-section">
