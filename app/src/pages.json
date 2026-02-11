@@ -56,6 +56,15 @@
         "navigationBarBackgroundColor": "#4CAF50",
         "navigationBarTextStyle": "white"
       }
+    },
+    {
+      "path": "pages/design-converter/index",
+      "style": {
+        "navigationBarTitleText": "Design Converter",
+        "navigationBarBackgroundColor": "#4CAF50",
+        "navigationBarTextStyle": "white",
+        "enablePullDownRefresh": false
+      }
     }
   ],
   "globalStyle": {

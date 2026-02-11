@@ -51,6 +51,14 @@
           <u-icon name="arrow-right" size="18" color="#BDBDBD" />
         </view>
         
+        <view class="menu-card" @click="handleDesignConverter">
+          <view class="menu-icon">
+            <u-icon name="magic-wand" size="20" color="#9C27B0" />
+          </view>
+          <text class="menu-title">Design Converter</text>
+          <u-icon name="arrow-right" size="18" color="#BDBDBD" />
+        </view>
+        
         <view class="menu-card" @click="handleAbout">
           <view class="menu-icon">
             <u-icon name="info-circle" size="20" color="#2196F3" />
@@ -123,6 +131,12 @@ const handleSettings = () => {
   uni.showToast({
     title: 'Settings coming soon',
     icon: 'none',
+  });
+};
+
+const handleDesignConverter = () => {
+  uni.navigateTo({
+    url: '/pages/design-converter/index'
   });
 };
 

@@ -44,6 +44,11 @@ const routes = [
         name: 'Statistics',
         component: () => import('../pages/Statistics.vue'),
       },
+      {
+        path: 'design-converter',
+        name: 'DesignConverter',
+        component: () => import('../pages/DesignConverter.vue'),
+      },
     ],
   },
   {

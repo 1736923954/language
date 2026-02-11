@@ -36,6 +36,10 @@
           <el-icon><DataAnalysis /></el-icon>
           <span>Statistics</span>
         </el-menu-item>
+        <el-menu-item index="design-converter">
+          <el-icon><MagicStick /></el-icon>
+          <span>Design Converter</span>
+        </el-menu-item>
       </el-menu>
     </el-aside>
 
@@ -85,6 +89,7 @@ import {
   Folder,
   User,
   DataAnalysis,
+  MagicStick,
   Expand,
   Fold,
   Moon,
